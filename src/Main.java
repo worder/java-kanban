@@ -1,3 +1,9 @@
+import model.Epic;
+import model.Subtask;
+import model.Task;
+import model.TaskStatus;
+import service.TaskManager;
+
 public class Main {
 
     static TaskManager manager;
@@ -100,6 +106,15 @@ public class Main {
         System.out.println("Delete all subtasks");
 
         manager.deleteAllSubtasks();
+
+        printAllTasks();
+
+        System.out.println("Show task #2");
+        System.out.println(manager.getTaskById(task2.getId()));
+        System.out.println();
+
+        System.out.println("Delete task #2");
+        manager.deleteTask(task2.getId());
 
         printAllTasks();
 

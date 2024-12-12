@@ -1,3 +1,5 @@
+package model;
+
 public class Task {
     private final String name;
     private final String description;
@@ -23,7 +25,7 @@ public class Task {
         return id;
     }
 
-    protected void setId(int id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -35,7 +37,7 @@ public class Task {
         return status;
     }
 
-    protected void setStatus(TaskStatus status) {
+    public void setStatus(TaskStatus status) {
         this.status = status;
     }
 
