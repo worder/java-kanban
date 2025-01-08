@@ -21,6 +21,10 @@ public class Task {
         this(task.getId(), name, description, status);
     }
 
+    public Task(Task task) {
+        this(task, task.getName(), task.getDescription(), task.getStatus());
+    }
+
     public int getId() {
         return id;
     }

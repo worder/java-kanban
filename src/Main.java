@@ -2,126 +2,24 @@ import model.Epic;
 import model.Subtask;
 import model.Task;
 import model.TaskStatus;
+import service.Managers;
 import service.TaskManager;
 
 public class Main {
 
-    static TaskManager manager;
+    static TaskManager taskManager;
 
     public static void main(String[] args) {
-        manager = new TaskManager();
+        taskManager = Managers.getDefault();
 
-        Task task1 = new Task("Task #1", "Task #1 description", TaskStatus.NEW);
-        manager.createTask(task1);
-        Task task2 = new Task("Task #2", "Task #2 description", TaskStatus.DONE);
-        manager.createTask(task2);
+        taskManager.createTask(new Task("Task 1", "Task 1 description", TaskStatus.NEW));
+        taskManager.createTask(new Task("Task 2", "Task 2 description", TaskStatus.DONE));
 
-        Epic epic1 = new Epic("Epic #1", "Epic #1 description");
-        manager.createEpic(epic1);
-        Epic epic2 = new Epic("Epic #2", "Epic #2 description");
-        manager.createEpic(epic2);
+        int epic1Id = taskManager.createEpic(new Epic("Epic 1", "Epic 1 description"));
+        int epic2Id = taskManager.createEpic(new Epic("Epic 2", "Epic 2 description"));
 
-        printAllTasks();
-
-        System.out.println("Adding subtasks to epic #1");
-
-        // subtask 1
-        Subtask st1 = new Subtask(
-                epic1.getId(),
-                "Subtask #1",
-                "Subtask #1 description",
-                TaskStatus.DONE);
-        manager.createSubtask(st1);
-
-        // subtask 2
-        Subtask st2 = new Subtask(
-                epic1.getId(),
-                "Subtask #2",
-                "Subtask #2 description",
-                TaskStatus.DONE);
-        manager.createSubtask(st2);
-
-        // subtask 10 for epic 2
-        Subtask st10 = new Subtask(
-                epic2.getId(),
-                "Subtask #10",
-                "Subtask #10 description",
-                TaskStatus.IN_PROGRESS);
-        manager.createSubtask(st10);
-
-        printAllTasks(); // epic #1 status is DONE
-
-        System.out.println("Add subtask with status NEW to epic #1");
-
-        // subtask 3
-        Subtask st3 = new Subtask(
-                epic1.getId(),
-                "New subtask #3",
-                "New subtask #3 description",
-                TaskStatus.NEW);
-        manager.createSubtask(st3);
-
-        printAllTasks(); // epic #1 status is IN_PROGRESS
-
-        System.out.println("Print epic #1 subtasks");
-        for (Subtask st : manager.getEpicSubtasks(epic1.getId())) {
-            System.out.println(">>> " + st);
-        }
-        System.out.println();
-
-        System.out.println("Updating subtask #3");
-
-        manager.updateSubtask(new Subtask(
-                st3,
-                "Done subtask #3",
-                "Done subtask #3 description",
-                TaskStatus.DONE));
-
-
-        printAllTasks(); // subtask updated; epic status changed to DONE
-
-        System.out.println("Updating task #1, epic #1");
-
-        manager.updateEpic(new Epic(epic1, "Epic #1 updated name", "Epic #1 updated description"));
-        manager.updateTask(new Task(
-                task1,
-                "Task #1 updated name",
-                "Task #1 updated description",
-                TaskStatus.IN_PROGRESS));
-
-        printAllTasks();
-
-        System.out.println("Delete subtask #2");
-
-        manager.deleteSubtask(st2.getId());
-
-        printAllTasks();
-
-        System.out.println("Delete epic #1");
-
-        manager.deleteEpic(epic1.getId());
-
-        printAllTasks();
-
-        System.out.println("Delete all subtasks");
-
-        manager.deleteAllSubtasks();
-
-        printAllTasks();
-
-        System.out.println("Show task #2");
-        System.out.println(manager.getTaskById(task2.getId()));
-        System.out.println();
-
-        System.out.println("Delete task #2");
-        manager.deleteTask(task2.getId());
-
-        printAllTasks();
-
-        System.out.println("Delete all epics and tasks");
-
-        manager.deleteAllEpics();
-        manager.deleteAllTasks();
+        taskManager.createSubtask(new Subtask(epic1Id, "Subtask 1", "Subtask for epic 1", TaskStatus.NEW));
+        taskManager.createSubtask(new Subtask(epic2Id, "Subtask 2", "Subtask for epic 2", TaskStatus.NEW));
 
         printAllTasks();
     }
@@ -129,21 +27,21 @@ public class Main {
     public static void printAllTasks() {
         System.out.println("-".repeat(60));
 
-        System.out.println("All subtasks:");
-        for (Subtask subtask : manager.getAllSubtasks()) {
-            System.out.println("> " + subtask);
+        System.out.println("All tasks:");
+        for (Task task : taskManager.getAllTasks()) {
+            System.out.println("> " + task);
         }
         System.out.println();
 
         System.out.println("All epics:");
-        for (Epic epic : manager.getAllEpics()) {
+        for (Epic epic : taskManager.getAllEpics()) {
             System.out.println("> " + epic);
         }
         System.out.println();
 
-        System.out.println("All tasks:");
-        for (Task task : manager.getAllTasks()) {
-            System.out.println("> " + task);
+        System.out.println("All subtasks:");
+        for (Subtask subtask : taskManager.getAllSubtasks()) {
+            System.out.println("> " + subtask);
         }
 
         System.out.println("-".repeat(60));

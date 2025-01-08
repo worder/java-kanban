@@ -21,6 +21,10 @@ public class Epic extends Task {
         this(epic.getId(), epic.getSubtaskIds(), name, description);
     }
 
+    public Epic(Epic epic) {
+        this(epic, epic.getName(), epic.getDescription());
+    }
+
     public void addSubtaskId(int id) {
         if (!subtaskIds.contains(id)) {
             subtaskIds.add(id);
