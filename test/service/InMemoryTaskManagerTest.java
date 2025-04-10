@@ -8,7 +8,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -215,30 +214,124 @@ class InMemoryTaskManagerTest {
     }
 
     @Test
-    public void historyShouldAcceptAllTypeOfTasks() {
-        int taskId = tm.createTask(new Task("Task", "desc", TaskStatus.NEW));
-        int epicId = tm.createEpic(new Epic("Epic", "desc"));
-        int subtaskId = tm.createSubtask(new Subtask(epicId, "Subtask", "desc", TaskStatus.NEW));
+    public void addTaskToHistoryWhenViewed() {
+        int task1id = tm.createTask(new Task("Task 1", "desc", TaskStatus.NEW));
+        int epic1Id = tm.createEpic(new Epic("Epic 1", "desc"));
+        int subtask1Id = tm.createSubtask(new Subtask(epic1Id, "Subtask 1", "desc", TaskStatus.NEW));
 
-        assertEquals(0, tm.getHistory().size());
-        tm.getTaskById(taskId);
-        tm.getEpicById(epicId);
-        tm.getSubtaskById(subtaskId);
+        Task first = tm.getTaskById(task1id);
+        tm.getEpicById(epic1Id);
+        Subtask last = tm.getSubtaskById(subtask1Id);
+
+        assertEquals(3, tm.getHistory().size());
+        assertEquals(first, tm.getHistory().getFirst());
+        assertEquals(last, tm.getHistory().getLast());
+    }
+
+    @Test
+    public void taskShouldNotDuplicateInHistory() {
+        int task1id = tm.createTask(new Task("Task 1", "desc", TaskStatus.NEW));
+        int task2id = tm.createTask(new Task("Task 2", "desc", TaskStatus.NEW));
+        int task3id = tm.createTask(new Task("Task 3", "desc", TaskStatus.NEW));
+        tm.getTaskById(task1id);
+        tm.getTaskById(task2id);
+        Task last = tm.getTaskById(task3id);
+        assertEquals(last, tm.getHistory().getLast());
+        last = tm.getTaskById(task1id);
+        assertEquals(last, tm.getHistory().getLast());
         assertEquals(3, tm.getHistory().size());
     }
 
     @Test
-    public void historyShouldNotOverflow() {
-        for (int i = 1; i <= 10; i++) {
-            tm.getTaskById(tm.createTask(new Task("Task " + i, "desc", TaskStatus.NEW)));
-        }
-        assertEquals(10, tm.getHistory().size());
-        tm.getTaskById(tm.createTask(new Task("Task 11", "desc", TaskStatus.NEW)));
-        assertEquals(10, tm.getHistory().size());
+    public void deleteTaskShouldDeleteTaskFromHistory() {
+        int task1id = tm.createTask(new Task("Task 1", "desc", TaskStatus.NEW));
+        int task2id = tm.createTask(new Task("Task 2", "desc", TaskStatus.NEW));
+        tm.getTaskById(task1id);
+        tm.getTaskById(task2id);
 
-        List<Task> history = tm.getHistory();
-        assertEquals(2, history.getFirst().getId());
-        assertEquals(11, history.getLast().getId());
+        tm.deleteTask(task1id);
+
+        assertEquals(1, tm.getHistory().size());
+    }
+
+    @Test
+    public void deleteAllTasksShouldDeleteTasksFromHistory() {
+        int task1id = tm.createTask(new Task("Task 1", "desc", TaskStatus.NEW));
+        int task2id = tm.createTask(new Task("Task 2", "desc", TaskStatus.NEW));
+        tm.getTaskById(task1id);
+        tm.getTaskById(task2id);
+
+        tm.deleteAllTasks();
+
+        assertEquals(0, tm.getHistory().size());
+    }
+
+    @Test
+    public void deleteSubtaskShouldDeleteSubtaskFromHistory() {
+        int epicId = tm.createEpic(new Epic("Epic 1", "desc"));
+        int subtask1id = tm.createSubtask(new Subtask(epicId, "Subtask 1", "desc", TaskStatus.NEW));
+        int subtask2id = tm.createSubtask(new Subtask(epicId, "Subtask 2", "desc", TaskStatus.NEW));
+        tm.getEpicById(epicId);
+        tm.getSubtaskById(subtask1id);
+        tm.getSubtaskById(subtask2id);
+
+        tm.deleteSubtask(subtask1id);
+
+        assertEquals(2, tm.getHistory().size());
+    }
+
+    @Test
+    public void deleteAllSubtasksShouldDeleteSubtasksFromHistory() {
+        int epicId = tm.createEpic(new Epic("Epic 1", "desc"));
+        int subtask1id = tm.createSubtask(new Subtask(epicId, "Subtask 1", "desc", TaskStatus.NEW));
+        int subtask2id = tm.createSubtask(new Subtask(epicId, "Subtask 2", "desc", TaskStatus.NEW));
+        tm.getEpicById(epicId);
+        tm.getSubtaskById(subtask1id);
+        tm.getSubtaskById(subtask2id);
+
+        tm.deleteAllSubtasks();
+
+        assertEquals(1, tm.getHistory().size());
+    }
+
+    @Test
+    public void deleteEpicShouldDeleteEpicAndItsSubtasksFromHistory() {
+        int epic1Id = tm.createEpic(new Epic("Epic 1", "desc"));
+        int subtask1id = tm.createSubtask(new Subtask(epic1Id, "Subtask 1", "desc", TaskStatus.NEW));
+        int subtask2id = tm.createSubtask(new Subtask(epic1Id, "Subtask 2", "desc", TaskStatus.NEW));
+
+        int epic2Id = tm.createEpic(new Epic("Epic 2", "desc"));
+        int subtask3id = tm.createSubtask(new Subtask(epic2Id, "Subtask 3", "desc", TaskStatus.NEW));
+
+        tm.getEpicById(epic1Id);
+        tm.getEpicById(epic2Id);
+        tm.getSubtaskById(subtask1id);
+        tm.getSubtaskById(subtask2id);
+        tm.getSubtaskById(subtask3id);
+
+        tm.deleteEpic(epic1Id);
+
+        assertEquals(2, tm.getHistory().size());
+    }
+
+    @Test
+    public void deleteAllEpicsShouldDeleteAllEpicsAndSubtasksFromHistory() {
+        int epic1Id = tm.createEpic(new Epic("Epic 1", "desc"));
+        int subtask1id = tm.createSubtask(new Subtask(epic1Id, "Subtask 1", "desc", TaskStatus.NEW));
+        int subtask2id = tm.createSubtask(new Subtask(epic1Id, "Subtask 2", "desc", TaskStatus.NEW));
+
+        int epic2Id = tm.createEpic(new Epic("Epic 2", "desc"));
+        int subtask3id = tm.createSubtask(new Subtask(epic2Id, "Subtask 3", "desc", TaskStatus.NEW));
+
+        tm.getEpicById(epic1Id);
+        tm.getEpicById(epic2Id);
+        tm.getSubtaskById(subtask1id);
+        tm.getSubtaskById(subtask2id);
+        tm.getSubtaskById(subtask3id);
+
+        tm.deleteAllEpics();
+
+        assertEquals(0, tm.getHistory().size());
     }
 
     @Test
