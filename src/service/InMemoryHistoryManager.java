@@ -25,10 +25,12 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     private final Map<Integer, Node<Task>> nodesById = new HashMap<>();
 
+    @Override
     public List<Task> getHistory() {
         return getTasks();
     }
 
+    @Override
     public void add(Task task) {
         if (task == null) {
             return;
@@ -38,6 +40,7 @@ public class InMemoryHistoryManager implements HistoryManager {
         size++;
     }
 
+    @Override
     public void remove(int id) {
         Node<Task> node = nodesById.get(id);
         if (node == null) {
@@ -47,6 +50,7 @@ public class InMemoryHistoryManager implements HistoryManager {
         nodesById.remove(id);
     }
 
+    @Override
     public void remove(Iterable<Integer> ids) {
         for (int id : ids) {
             remove(id);
