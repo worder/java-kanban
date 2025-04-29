@@ -24,6 +24,15 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
     }
 
     private void save() {
+        if (!Files.exists(path)) {
+            try {
+                Files.createDirectories(path.getParent());
+                Files.createFile(path);
+            } catch (IOException e) {
+                throw new ManagerSaveException(e.getMessage(), e);
+            }
+        }
+
         try (BufferedWriter out = Files.newBufferedWriter(path, FILE_CHARSET)) {
             List<Task> allTasks = new ArrayList<>();
             allTasks.addAll(getAllTasks());
