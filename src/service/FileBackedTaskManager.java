@@ -110,6 +110,12 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
     }
 
     @Override
+    public void deleteAllTasks() {
+        super.deleteAllTasks();
+        save();
+    }
+
+    @Override
     public Integer createSubtask(Subtask subtask) {
         int id = super.createSubtask(subtask);
         save();
@@ -129,6 +135,12 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
     }
 
     @Override
+    public void deleteAllSubtasks() {
+        super.deleteAllSubtasks();
+        save();
+    }
+
+    @Override
     public Integer createEpic(Epic epic) {
         int id = super.createEpic(epic);
         save();
@@ -144,6 +156,12 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
     @Override
     public void deleteEpic(int id) {
         super.deleteEpic(id);
+        save();
+    }
+
+    @Override
+    public void deleteAllEpics() {
+        super.deleteAllEpics();
         save();
     }
 
