@@ -16,7 +16,7 @@ import java.util.List;
 public class FileBackedTaskManager extends InMemoryTaskManager implements TaskManager {
 
     private final Path path;
-    private final static Charset FILE_CHARSET = StandardCharsets.UTF_8;
+    private static final Charset FILE_CHARSET = StandardCharsets.UTF_8;
 
     public FileBackedTaskManager(HistoryManager history, Path filepath) {
         super(history);
