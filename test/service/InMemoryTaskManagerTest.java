@@ -79,7 +79,7 @@ class InMemoryTaskManagerTest {
     @Test
     public void idMustBeAssignedByManagerOnEpicCreation() {
         int epic1Id = tm.createEpic(new Epic("Epic 1", "Epic 1 desc"));
-        int epic2Id = tm.createEpic(new Epic(epic1Id, new ArrayList<>(), "Epic 2", "Epic 2 desc"));
+        int epic2Id = tm.createEpic(new Epic(epic1Id, "Epic 2", "Epic 2 desc"));
         assertNotEquals(epic1Id, epic2Id);
     }
 
@@ -108,7 +108,7 @@ class InMemoryTaskManagerTest {
     @Test
     public void updateEpic() {
         int epicId = tm.createEpic(new Epic("Epic name", "Epic desc"));
-        Epic update = new Epic(epicId, new ArrayList<>(), "Epic name updated", "Epic desc updated");
+        Epic update = new Epic(epicId, "Epic name updated", "Epic desc updated");
         tm.updateEpic(update);
 
         Epic updatedEpic = tm.getEpicById(epicId);

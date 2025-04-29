@@ -1,0 +1,6 @@
+1,TASK,Task N,NEW,Task N description,
+2,TASK,Task 2,DONE,Task 2 description,
+3,EPIC,Epic 1,NEW,Epic 1 description,
+4,EPIC,Epic 2,NEW,Epic 2 description,
+5,SUBTASK,Subtask 1,NEW,Subtask for epic 1,3
+6,SUBTASK,Subtask 2,NEW,Subtask for epic 2,4

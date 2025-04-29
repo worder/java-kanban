@@ -1,6 +1,7 @@
 package model;
 
 public class Task {
+
     private final String name;
     private final String description;
     private TaskStatus status;
