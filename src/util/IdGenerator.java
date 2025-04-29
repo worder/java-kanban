@@ -6,4 +6,10 @@ public class IdGenerator {
     public int getNewId() {
         return counter++;
     }
+
+    public void actualizeNextId(int id) {
+        if (id > counter) {
+            counter = id + 1;
+        }
+    }
 }

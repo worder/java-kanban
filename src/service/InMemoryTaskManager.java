@@ -4,6 +4,7 @@ import model.Epic;
 import model.Subtask;
 import model.Task;
 import model.TaskStatus;
+import service.exception.InMemoryTaskManagerPutException;
 import util.IdGenerator;
 
 import java.util.ArrayList;
@@ -38,7 +39,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Task getTaskById(int id) {
-        Task task =  tasks.get(id);
+        Task task = tasks.get(id);
         if (task == null) {
             return null;
         }
@@ -55,6 +56,19 @@ public class InMemoryTaskManager implements TaskManager {
         tasks.put(id, newTask);
 
         return id; // return id for testing convenience
+    }
+
+    protected void putTask(Task task) {
+        if (task == null) {
+            throw new InMemoryTaskManagerPutException("Task is null");
+        } else if (task.getId() == 0) {
+            throw new InMemoryTaskManagerPutException("No id assigned to task");
+        } else if (tasks.containsKey(task.getId())) {
+            throw new InMemoryTaskManagerPutException("Task already exists");
+        }
+
+        tasks.put(task.getId(), task);
+        idGen.actualizeNextId(task.getId());
     }
 
     @Override
@@ -119,6 +133,20 @@ public class InMemoryTaskManager implements TaskManager {
         return null;
     }
 
+    protected void putSubtask(Subtask subtask) {
+        if (subtask == null) {
+            throw new InMemoryTaskManagerPutException("Subtask is null");
+        } else if (subtask.getId() == 0) {
+            throw new InMemoryTaskManagerPutException("No id assigned to subtask");
+        } else if (!epics.containsKey(subtask.getEpicId())) {
+            throw new InMemoryTaskManagerPutException("No epic for subtask found");
+        }
+
+        subtasks.put(subtask.getId(), subtask);
+        epics.get(subtask.getEpicId()).addSubtaskId(subtask.getId());
+        idGen.actualizeNextId(subtask.getId());
+    }
+
     @Override
     public void updateSubtask(Subtask subtask) {
         int id = subtask.getId();
@@ -174,6 +202,19 @@ public class InMemoryTaskManager implements TaskManager {
         epics.put(id, newEpic);
 
         return id;
+    }
+
+    public void putEpic(Epic epic) {
+        if (epic == null) {
+            throw new InMemoryTaskManagerPutException("Epic is null");
+        } else if (epic.getId() == 0) {
+            throw new InMemoryTaskManagerPutException("No id assigned to epic");
+        } else if (epics.containsKey(epic.getId())) {
+            throw new InMemoryTaskManagerPutException("Epic already exists");
+        }
+
+        epics.put(epic.getId(), epic);
+        idGen.actualizeNextId(epic.getId());
     }
 
     @Override
