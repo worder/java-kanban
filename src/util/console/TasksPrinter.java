@@ -29,4 +29,13 @@ public class TasksPrinter {
         System.out.println("-".repeat(60));
         System.out.println();
     }
+
+    public static void printPrioritizedTasks(TaskManager tm) {
+        System.out.println("-".repeat(60));
+        System.out.println("Prioritized tasks and subtasks list:");
+        System.out.println("-".repeat(60));
+        for (Task task : tm.getPrioritizedTasks()) {
+            System.out.println("> " + task);
+        }
+    }
 }
