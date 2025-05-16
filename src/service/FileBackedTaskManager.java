@@ -1,6 +1,7 @@
 package service;
 
 import model.*;
+import service.exception.InMemoryTaskManagerLoadException;
 import service.exception.ManagerSaveException;
 
 import java.io.BufferedReader;
@@ -10,13 +11,18 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 public class FileBackedTaskManager extends InMemoryTaskManager implements TaskManager {
 
     private final Path path;
     private static final Charset FILE_CHARSET = StandardCharsets.UTF_8;
+    public static final String LINE_SEPARATOR = "\n";
 
     public FileBackedTaskManager(HistoryManager history, Path filepath) {
         super(history);
@@ -70,32 +76,53 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
     private Task stringToTask(String string) {
         String[] parts = string.split(",");
 
+        if (parts.length != 9) {
+            throw new InMemoryTaskManagerLoadException(
+                    "Line parsing error, expected 9 columns, provided: " + parts.length);
+        }
+
+        Function<String, LocalDateTime> parseDate = dateString -> {
+            try {
+                return LocalDateTime.parse(dateString);
+            } catch (DateTimeParseException e) {
+                return null;
+            }
+        };
+
         int id = Integer.parseInt(parts[0]);
-        String name = parts[2];
-        String desc = parts[4];
-        TaskStatus status = TaskStatus.valueOf(parts[3]);
         TaskType type = TaskType.valueOf(parts[1]);
+        String name = parts[2];
+        TaskStatus status = TaskStatus.valueOf(parts[3]);
+        String desc = parts[4];
+        int epicId = Integer.parseInt(parts[5]);
+        LocalDateTime startTime = parseDate.apply(parts[6]);
+        Duration duration = Duration.ofMinutes(Integer.parseInt(parts[7]));
+        LocalDateTime endTime = parseDate.apply(parts[8]);
 
         return switch (type) {
-            case TaskType.EPIC -> new Epic(id, name, desc, status);
-            case TaskType.SUBTASK -> {
-                int epicId = Integer.parseInt(parts[5]);
-                yield new Subtask(id, epicId, name, desc, status);
-            }
-            default -> new Task(id, name, desc, status);
+            case TaskType.EPIC -> new Epic(id, name, desc, status, new ArrayList<>(), duration, startTime, endTime);
+            case TaskType.SUBTASK -> new Subtask(id, epicId, name, desc, status, duration, startTime);
+            default -> new Task(id, name, desc, status, duration, startTime);
         };
     }
 
     private String taskToString(Task t) {
-        // id,type,name,status,description,epic
-        String template = "%s,%s,%s,%s,%s,%s%n";
+        // id,type,name,status,description,epic,startTime,duration,endTime
+        String commonTemplate = String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s" + LINE_SEPARATOR,
+                t.getId(),
+                "%s", // task type
+                t.getName(),
+                t.getStatus(),
+                t.getDescription(),
+                "%s", // epicId
+                t.getStartTime(),
+                t.getDuration().toMinutes(),
+                "%s" // endTime for epics only
+        );
         return switch (t) {
-            case Epic e -> String.format(template,
-                    e.getId(), TaskType.EPIC, e.getName(), e.getStatus(), e.getDescription(), "");
-            case Subtask s -> String.format(template,
-                    s.getId(), TaskType.SUBTASK, s.getName(), s.getStatus(), s.getDescription(), s.getEpicId());
-            default -> String.format(template,
-                    t.getId(), TaskType.TASK, t.getName(), t.getStatus(), t.getDescription(), "");
+            case Epic e -> String.format(commonTemplate, TaskType.EPIC, "0", e.getEndTime());
+            case Subtask s -> String.format(commonTemplate, TaskType.SUBTASK, s.getEpicId(), "0");
+            default -> String.format(commonTemplate, TaskType.TASK, "0", "0");
         };
     }
 
@@ -126,7 +153,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
 
     @Override
     public Integer createSubtask(Subtask subtask) {
-        int id = super.createSubtask(subtask);
+        Integer id = super.createSubtask(subtask);
         save();
         return id;
     }
