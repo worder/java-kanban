@@ -121,7 +121,7 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
     @Test
     public void idAssignmentIsCorrectAfterLoad() {
         TaskManager tmLoaded = FileBackedTaskManager.loadFromFile(history, tempFileReadTest);
-        Task task = createTestTask(TaskStatus.NEW, durationRef, timeRef);
+        Task task = makeTestTask(TaskStatus.NEW, durationRef, timeRef);
         int id = tmLoaded.createTask(task);
 
         assertEquals(7, id);

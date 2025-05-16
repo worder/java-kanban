@@ -69,6 +69,19 @@ public class Task {
         return startTime.plus(duration);
     }
 
+    public boolean hasTimeConflictWith(Task otherTask) {
+        if (this.equals(otherTask)) {
+            return false; // allow update existing task
+        }
+
+        LocalDateTime t1s = this.getStartTime();
+        LocalDateTime t1e = this.getEndTime();
+        LocalDateTime t2s = otherTask.getStartTime();
+        LocalDateTime t2e = otherTask.getEndTime();
+
+        return (t1s.isBefore(t2e) && t1e.isAfter(t2s)) || (t1e.isAfter(t2e) && t1s.isBefore(t2e));
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
