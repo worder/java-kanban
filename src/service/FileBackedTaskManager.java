@@ -1,7 +1,6 @@
 package service;
 
 import model.*;
-import service.exception.InMemoryTaskManagerLoadException;
 import service.exception.ManagerLoadException;
 import service.exception.ManagerSaveException;
 
@@ -82,7 +81,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
         String[] parts = string.split(",");
 
         if (parts.length != 9) {
-            throw new InMemoryTaskManagerLoadException(
+            throw new ManagerLoadException(
                     "Line parsing error, expected 9 columns, provided: " + parts.length);
         }
 
