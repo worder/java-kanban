@@ -4,14 +4,17 @@ import model.Task;
 import model.TaskStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import service.exception.ManagerLoadException;
+import service.exception.ManagerSaveException;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
 
@@ -125,5 +128,20 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
         int id = tmLoaded.createTask(task);
 
         assertEquals(7, id);
+    }
+
+    @Test
+    public void nullPathLoadThrowsException() {
+        assertThrows(ManagerLoadException.class, () -> {
+            FileBackedTaskManager.loadFromFile(new InMemoryHistoryManager(), null);
+        });
+    }
+
+    @Test
+    public void nullPathSaveThrowsException() {
+        assertThrows(ManagerSaveException.class, () -> {
+            TaskManager tm = new FileBackedTaskManager(new InMemoryHistoryManager(), null);
+            tm.createTask(new Task("", "", TaskStatus.NEW, Duration.ZERO, LocalDateTime.now()));
+        });
     }
 }

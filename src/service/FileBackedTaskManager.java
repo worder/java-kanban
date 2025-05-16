@@ -2,6 +2,7 @@ package service;
 
 import model.*;
 import service.exception.InMemoryTaskManagerLoadException;
+import service.exception.ManagerLoadException;
 import service.exception.ManagerSaveException;
 
 import java.io.BufferedReader;
@@ -30,7 +31,9 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
     }
 
     private void save() {
-        if (!Files.exists(path)) {
+        if (path == null) {
+            throw new ManagerSaveException("Path is null");
+        } else if (!Files.exists(path)) {
             try {
                 Files.createDirectories(path.getParent());
                 Files.createFile(path);
@@ -54,7 +57,9 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
     }
 
     private void load() {
-        if (!Files.exists(path)) {
+        if (path == null) {
+            throw new ManagerLoadException("Path is null");
+        } else if (!Files.exists(path)) {
             return;
         }
 
@@ -69,7 +74,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager implements TaskMa
                 }
             }
         } catch (IOException e) {
-            throw new ManagerSaveException(e.getMessage(), e);
+            throw new ManagerLoadException(e.getMessage(), e);
         }
     }
 
