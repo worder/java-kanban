@@ -4,29 +4,46 @@ import model.Task;
 import model.TaskStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import service.exception.ManagerLoadException;
+import service.exception.ManagerSaveException;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class FileBackedTaskManagerTest {
+public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
 
-    static final String NL = System.lineSeparator();
-
+    Path tempFileCommon;
     Path tempFileReadTest;
     Path tempFileWriteTest;
     HistoryManager history;
 
-    String fileExample = "1,TASK,Task 1,NEW,Task 1 description," + NL
-            + "2,TASK,Task 2,DONE,Task 2 description," + NL
-            + "3,EPIC,Epic 1,NEW,Epic 1 description," + NL
-            + "4,EPIC,Epic 2,NEW,Epic 2 description," + NL
-            + "5,SUBTASK,Subtask 1,NEW,Subtask for epic 1,3" + NL
-            + "6,SUBTASK,Subtask 2,NEW,Subtask for epic 2,4" + NL;
+    String[] fileExample = {
+            "1,TASK,Task #1,NEW,Task 1 description,0,2025-05-01T09:00,59,0",
+            "2,TASK,Task #2,DONE,Task 2 description,0,2025-05-01T10:00,59,0",
+            "3,EPIC,Epic #1,NEW,Epic 1 description,0,2025-05-01T11:00,59,2025-05-01T11:59",
+            "4,EPIC,Epic #2,NEW,Epic 2 description,0,2025-05-01T12:00,59,2025-05-01T12:59",
+            "5,SUBTASK,Subtask #1 for epic #1,NEW,Subtask 1 for epic 1,3,2025-05-01T11:00,59,0",
+            "6,SUBTASK,Subtask #2 for epic #2,NEW,Subtask 2 for epic 2,4,2025-05-01T12:00,59,0",
+            "" // ensure line break after last task
+    };
+
+    String fileExampleString = String.join(FileBackedTaskManager.LINE_SEPARATOR, fileExample);
+
+    @Override
+    FileBackedTaskManager getTaskManager() {
+        try {
+            tempFileCommon = Files.createTempFile("common", ".csv");
+            return new FileBackedTaskManager(new InMemoryHistoryManager(), tempFileCommon);
+        } catch (IOException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
 
     @BeforeEach
     public void prepareTestFiles() {
@@ -36,7 +53,7 @@ public class FileBackedTaskManagerTest {
             tempFileWriteTest = Files.createTempFile("writeTest", ".csv");
 
             BufferedWriter out = Files.newBufferedWriter(tempFileReadTest);
-            out.write(fileExample);
+            out.write(fileExampleString);
             out.close();
         } catch (IOException e) {
             throw new RuntimeException(e.getMessage(), e);
@@ -66,7 +83,7 @@ public class FileBackedTaskManagerTest {
 
         try {
             String fileWrittenLines = Files.readString(tempFileWriteTest);
-            assertEquals(fileExample, fileWrittenLines);
+            assertEquals(fileExampleString, fileWrittenLines);
         } catch (IOException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
@@ -107,9 +124,24 @@ public class FileBackedTaskManagerTest {
     @Test
     public void idAssignmentIsCorrectAfterLoad() {
         TaskManager tmLoaded = FileBackedTaskManager.loadFromFile(history, tempFileReadTest);
-        Task task = new Task("Task with expected id 7", "desc", TaskStatus.NEW);
+        Task task = makeTestTask(TaskStatus.NEW, durationRef, timeRef);
         int id = tmLoaded.createTask(task);
 
         assertEquals(7, id);
+    }
+
+    @Test
+    public void nullPathLoadThrowsException() {
+        assertThrows(ManagerLoadException.class, () -> {
+            FileBackedTaskManager.loadFromFile(new InMemoryHistoryManager(), null);
+        });
+    }
+
+    @Test
+    public void nullPathSaveThrowsException() {
+        assertThrows(ManagerSaveException.class, () -> {
+            TaskManager tm = new FileBackedTaskManager(new InMemoryHistoryManager(), null);
+            tm.createTask(new Task("", "", TaskStatus.NEW, Duration.ZERO, LocalDateTime.now()));
+        });
     }
 }
