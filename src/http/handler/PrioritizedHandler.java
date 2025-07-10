@@ -13,13 +13,7 @@ public class PrioritizedHandler extends BaseHttpHandler {
         super(manager);
     }
 
-    void get(HttpExchange exchange) throws IOException {
+    public void get(HttpExchange exchange) throws IOException {
         this.sendText(this.toJson(manager.getPrioritizedTasks()), exchange);
-    }
-
-    void post(HttpExchange exchange) throws IOException {
-    }
-
-    void delete(HttpExchange exchange) throws IOException {
     }
 }

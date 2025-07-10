@@ -15,7 +15,7 @@ public class EpicsHandler extends BaseHttpHandler {
         super(manager);
     }
 
-    void get(HttpExchange exchange) throws IOException {
+    public void get(HttpExchange exchange) throws IOException {
         if (this.hasId(exchange)) {
             String[] uriArgs = this.getUriArgs(exchange);
             try {
@@ -38,7 +38,7 @@ public class EpicsHandler extends BaseHttpHandler {
         }
     }
 
-    void post(HttpExchange exchange) throws IOException {
+    public void post(HttpExchange exchange) throws IOException {
         Epic epic = fromInputJson(exchange, Epic.class);
         try {
             manager.createEpic(epic);
@@ -48,7 +48,7 @@ public class EpicsHandler extends BaseHttpHandler {
         }
     }
 
-    void delete(HttpExchange exchange) throws IOException {
+    public void delete(HttpExchange exchange) throws IOException {
         if (this.hasId(exchange)) {
             try {
                 int id = this.getId(exchange);

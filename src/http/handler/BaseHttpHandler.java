@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import http.HttpMethod;
 import http.json.adapter.DurationAdapter;
 import http.json.adapter.LocalDateTimeAdapter;
 import service.TaskManager;
@@ -28,26 +29,32 @@ public abstract class BaseHttpHandler implements HttpHandler {
                 .create();
     }
 
-    abstract void get(HttpExchange exchange) throws IOException;
+    public void get(HttpExchange exchange) throws IOException {
+        sendNotAllowed(exchange);
+    }
 
-    abstract void post(HttpExchange exchange) throws IOException;
+    public void post(HttpExchange exchange) throws IOException {
+        sendNotAllowed(exchange);
+    };
 
-    abstract void delete(HttpExchange exchange) throws IOException;
+    public void delete(HttpExchange exchange) throws IOException {
+        sendNotAllowed(exchange);
+    }
 
     @Override
     public void handle(HttpExchange exchange) {
-        String method = exchange.getRequestMethod();
+        HttpMethod method = HttpMethod.valueOf(exchange.getRequestMethod());
         System.out.println(method + " " + exchange.getRequestURI().toString());
 
         try {
             switch (method) {
-                case "GET":
+                case GET:
                     this.get(exchange);
                     break;
-                case "POST":
+                case POST:
                     this.post(exchange);
                     break;
-                case "DELETE":
+                case DELETE:
                     this.delete(exchange);
                     break;
                 default:
@@ -85,6 +92,11 @@ public abstract class BaseHttpHandler implements HttpHandler {
 
     protected void sendBadRequest(HttpExchange exchange) throws IOException {
         exchange.sendResponseHeaders(400, 0);
+        exchange.close();
+    }
+
+    protected void sendNotAllowed(HttpExchange exchange) throws IOException {
+        exchange.sendResponseHeaders(405, 0);
         exchange.close();
     }
 

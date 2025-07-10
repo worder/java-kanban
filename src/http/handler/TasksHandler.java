@@ -16,7 +16,7 @@ public class TasksHandler extends BaseHttpHandler {
     }
 
     @Override
-    void get(HttpExchange exchange) throws IOException {
+    public void get(HttpExchange exchange) throws IOException {
         if (this.hasId(exchange)) {
             try {
                 int id = this.getId(exchange);
@@ -35,7 +35,7 @@ public class TasksHandler extends BaseHttpHandler {
     }
 
     @Override
-    void post(HttpExchange exchange) throws IOException {
+    public void post(HttpExchange exchange) throws IOException {
         Task task = fromInputJson(exchange, Task.class);
         try {
             if (task.getId() != null) {
@@ -50,7 +50,7 @@ public class TasksHandler extends BaseHttpHandler {
     }
 
     @Override
-    void delete(HttpExchange exchange) throws IOException {
+    public void delete(HttpExchange exchange) throws IOException {
         if (this.hasId(exchange)) {
             try {
                 int id = this.getId(exchange);

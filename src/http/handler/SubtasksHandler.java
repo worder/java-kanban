@@ -15,7 +15,7 @@ public class SubtasksHandler extends BaseHttpHandler {
         super(manager);
     }
 
-    void get(HttpExchange exchange) throws IOException {
+    public void get(HttpExchange exchange) throws IOException {
         if (this.hasId(exchange)) {
             try {
                 int id = this.getId(exchange);
@@ -33,7 +33,7 @@ public class SubtasksHandler extends BaseHttpHandler {
         }
     }
 
-    void post(HttpExchange exchange) throws IOException {
+    public void post(HttpExchange exchange) throws IOException {
         Subtask subtask = fromInputJson(exchange, Subtask.class);
         try {
             if (subtask.getId() != null) {
@@ -47,7 +47,7 @@ public class SubtasksHandler extends BaseHttpHandler {
         }
     }
 
-    void delete(HttpExchange exchange) throws IOException {
+    public void delete(HttpExchange exchange) throws IOException {
         if (this.hasId(exchange)) {
             try {
                 int id = this.getId(exchange);
