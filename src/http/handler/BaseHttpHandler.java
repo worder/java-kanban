@@ -35,7 +35,7 @@ public abstract class BaseHttpHandler implements HttpHandler {
 
     public void post(HttpExchange exchange) throws IOException {
         sendNotAllowed(exchange);
-    };
+    }
 
     public void delete(HttpExchange exchange) throws IOException {
         sendNotAllowed(exchange);
