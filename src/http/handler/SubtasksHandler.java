@@ -2,12 +2,10 @@ package http.handler;
 
 import com.sun.net.httpserver.HttpExchange;
 import model.Subtask;
-import model.Task;
 import service.TaskManager;
 import service.exception.InMemoryTaskManagerCreateException;
 
 import java.io.IOException;
-import java.util.List;
 
 public class SubtasksHandler extends BaseHttpHandler {
 
