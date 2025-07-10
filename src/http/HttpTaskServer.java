@@ -1,11 +1,7 @@
 package http;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.sun.net.httpserver.HttpServer;
 import http.handler.*;
-import http.json.adapter.DurationAdapter;
-import http.json.adapter.LocalDateTimeAdapter;
 import service.Managers;
 import service.TaskManager;
 
@@ -13,8 +9,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.time.Duration;
-import java.time.LocalDateTime;
 
 public class HttpTaskServer {
     private static final int SERVER_PORT = 8080;
