@@ -43,7 +43,7 @@ public class Subtask extends Task {
                 subtask.getStartTime());
     }
 
-    public Subtask withId(int id) {
+    public Subtask withId(Integer id) {
         return new Subtask(
                 id,
                 this.getEpicId(),

@@ -17,7 +17,7 @@ public class Epic extends Task {
     }
 
     public Epic(
-            int id,
+            Integer id,
             String name,
             String description,
             TaskStatus status,
@@ -42,7 +42,7 @@ public class Epic extends Task {
                 epic.getEndTime());
     }
 
-    public Epic withId(int id) {
+    public Epic withId(Integer id) {
         return new Epic(id,
                 this.getName(),
                 this.getDescription(),
